@@ -1,68 +1,44 @@
-# Zero Knowledge Proof Research
+# Zero-Knowledge Proof Research
 
-For this project I am conducting research and implementing Zero Knowledge Proofs (ZKPs) and seeing their potential in GPU based system design. I am also generating comprehensive project documentation to communicate research findings and contribute to knowledge dissemination in ZKPs and GPU-based systems.
+Undergraduate research project at Cleveland State University (summer 2023) on zero-knowledge proofs and how their arithmetic could be accelerated on GPUs.
 
-This project will detail a report of different implementations of ZKP equations focusing on Schnorr's Protocol. Schnorrs Protocol is a mathematical equation that is an Honest-verifier zero knowledge (HVZK) proof. The Schnorr signature scheme is a robust and efficient digital signature algorithm widely used in modern cryptographic applications. It relies on the hardness of mathematical problems, such as the discrete logarithm problem, to provide security. One of its notable features is signature aggregation, allowing multiple signatures to be combined into a single signature. This property offers benefits like improved scalability and privacy, making it an attractive choice for various blockchain and cryptocurrency protocols. With smaller key sizes and strong security guarantees, the Schnorr signature scheme continues to be a significant advancement in digital signature technology.
+The work focused on **Schnorr's protocol**, an honest-verifier zero-knowledge proof built on the hardness of the discrete logarithm problem, and on the large-number modular arithmetic it depends on. That arithmetic (multiplying and reducing numbers hundreds of bits long, modulo a prime) is the expensive part of a proof and the part worth moving to a GPU.
 
-A quick review of the math is shown below given the equations and exchange of information between verifier and prover. 
+![Schnorr's protocol: messages exchanged between prover and verifier](Images/SPgraph.png)
 
-![](Images/SPgraph.png)
+## What's here
 
-## Table of Contents
+| Path | What it is |
+|---|---|
+| `src/Sigma_Protocol.py` | A small Python demo of a Schnorr-style sigma protocol: a prover convinces a verifier it knows a secret without revealing it |
+| `include/` | Big-number arithmetic in C on byte arrays: multiplication (`multiplier.c`), subtraction (`subtraction.c`), bit shifting (`shifting.c`), and finding the Barrett constant `k` (`findK.c`) |
+| `include/Barretts.c` | Barrett reduction on 512-bit operands, built from the routines above |
+| `src/SingleWordBarretts.c` | Barrett reduction on single bytes, used to check the algorithm on small values |
+| `src/montegomery.c` | Placeholder for Montgomery multiplication (not implemented) |
+| `Examples/`, `tests/` | Standalone experiments used while developing the routines |
+| `pyth.py` | Helper used to check results in Python |
 
-- [Project Title](#Zero-Knowledge-Proof-Research)
-- [Introduction](#introduction)
-- [Features](#features)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Contributing](#contributing)
-- [License](#license)
+## Running it
 
-## Introduction
+Schnorr demo (Python 3):
 
-
-
-## Features
-
-List the key features and functionalities of your project. This section helps users understand what your project can do.
-
-## Installation
-
-Sigma_protocol.py
-
-Python3 needs to be installed to run this program. Once installed run :
-`python sigma_protocol.py`
--or-
-`python3 sigma_protocol.py`
-
-Barretts.c
-GBD needs to be installed to run this program. Once installed run :
-
-```
-// Compile
-gcc -c -g multiplier.c  ;
-gcc -c -g subtraction.c  ;
-gcc -c -g shifting.c  ;
-gcc -c -g findK.c  ;
-gcc -c -g Barretts.c   ;
-gcc -o main Barretts.o multiplier.o subtraction.o shifting.o findK.o
-
-// clean up
-rm *.o ; rm *.exe 
+```bash
+python src/Sigma_Protocol.py
 ```
 
-## Usage
+Barrett reduction (needs gcc):
 
-Purely for educational purposes in learning about Zero Knowledge Proofs.
+```bash
+make
+./barrett
+```
 
-## Contributing
+## Status
 
-Haodong Wang, PHD
-_Profesor overseeing research, and assisting in production_
+Archived research code, kept as a record of the project. It is written for learning and is **not** secure: do not use it for real cryptography. The GPU port and the Montgomery multiplication were planned next steps and were not completed.
 
-**Resources**
-_https://codethechange.stanford.edu/guides/guide_zk.html_
+## Background
 
-## License
-
-General MIT license
+- Schnorr, C. P. "Efficient signature generation by smart cards." *Journal of Cryptology*, 1991.
+- Barrett, P. "Implementing the Rivest Shamir and Adleman public key encryption algorithm on a standard digital signal processor." *CRYPTO '86*.
+- Menezes, van Oorschot and Vanstone. *Handbook of Applied Cryptography*, chapter 14 (efficient implementation).
